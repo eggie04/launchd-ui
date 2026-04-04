@@ -1,4 +1,5 @@
 export type JobSource = "UserAgent" | "SystemAgent" | "SystemDaemon"
+export type SourceFilter = JobSource | "All" | "AI"
 export type JobStatus = "Running" | "Loaded" | "Unloaded" | "Unknown"
 
 export type JobListEntry = {

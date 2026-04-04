@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react"
-import type { JobListEntry, JobSource } from "@/types"
+import type { JobListEntry, SourceFilter } from "@/types"
 import { listJobs } from "@/lib/invoke"
+import { isAiJob } from "@/lib/aiFilter"
 
 type UseJobsReturn = {
   jobs: JobListEntry[]
@@ -9,8 +10,8 @@ type UseJobsReturn = {
   error: string | null
   search: string
   setSearch: (value: string) => void
-  sourceFilter: JobSource | "All"
-  setSourceFilter: (value: JobSource | "All") => void
+  sourceFilter: SourceFilter
+  setSourceFilter: (value: SourceFilter) => void
   refresh: () => Promise<void>
 }
 
@@ -19,7 +20,7 @@ export function useJobs(): UseJobsReturn {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState("")
-  const [sourceFilter, setSourceFilter] = useState<JobSource | "All">("All")
+  const [sourceFilter, setSourceFilter] = useState<SourceFilter>("All")
 
   const refresh = useCallback(async () => {
     setLoading(true)
@@ -42,7 +43,11 @@ export function useJobs(): UseJobsReturn {
     const matchesSearch =
       search === "" || job.label.toLowerCase().includes(search.toLowerCase())
     const matchesSource =
-      sourceFilter === "All" || job.source === sourceFilter
+      sourceFilter === "All"
+        ? true
+        : sourceFilter === "AI"
+          ? isAiJob(job)
+          : job.source === sourceFilter
     return matchesSearch && matchesSource
   })
 
